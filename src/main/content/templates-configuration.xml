@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template-definition version="1.0" xmlns="http://www.polopoly.com/polopoly/cm/app/xml">
+  <!--This file contains input template definitions -->
+  <input-template name="com.atex.plugins.customsolr.CustomSolrConfigTemplate" label="com.atex.plugins.customsolr.configTemplate">
+    <policy>com.atex.plugins.customsolr.ConfigPolicy</policy>
+    <editor>com.polopoly.cm.app.widget.OTopPolicyWidget</editor>
+    <viewer>com.polopoly.cm.app.widget.OTopPolicyWidget</viewer>
+    <type>AppConfig</type>
+    <param name="ViewState_insert">false</param>
+    <param name="EditState_saveAndClose">true</param>
+    <param name="EditState_saveAndInsert">false</param>
+    <param name="EditState_saveAndFastInsert">false</param>
+    <param name="EditState_saveAndView">true</param>
+    <param name="EditNewState_saveAndClose">false</param>
+    <param name="EditNewState_saveAndInsert">false</param>
+    <param name="EditNewState_saveAndFastInsert">true</param>
+    <param name="EditNewState_saveAndView">false</param>
+    <param name="renderTemplateIconInSelect">true</param>
+
+    <layout name="menu" input-template="p.PageMenu">
+      <layout name="general" input-template="p.Page" label="cm.general.General">
+        <field name="name" input-template="p.ContentName" label="cm.label.Name" required="true" />
+        <field name="defaultSolrUrl" input-template="p.TextInput" label="com.atex.plugins.customsolr.config.defaultSolrUrl" >
+          <help>com.atex.plugins.customsolr.config.defaultSolrUrl.help</help>
+        </field>
+        <field name="autoLogin" input-template="p.Checkbox" label="com.atex.plugins.customsolr.config.autoLogin"></field>
+        <layout name="fieldlayout" input-template="p.ColumnHolder" label="com.atex.plugins.customsolr.config.fieldlayout">
+          <layout name="fieldcolumn" input-template="p.Column" >
+              <field name="corebasedup" input-template="p.Duplicator">
+                <field name="core" input-template="p.TextInput" required="true" p.dulabel="com.atex.plugins.customsolr.config.core.label"/>
+                <field name="basicfsel" input-template="com.atex.plugins.customsolr.BasicFieldSelect" label="com.atex.plugins.customsolr.config.selectbasicfields.label">
+                  <help>com.atex.plugins.customsolr.config.selectbasicfields.help</help>
+                  <param name="multivalued">true</param>
+                  <param name="size">10</param>
+                </field>
+                <field name="itssel" input-template="com.atex.plugins.customsolr.InputTemplateSelect" label="com.atex.plugins.customsolr.config.selectinputtemplates.label">
+                  <help>com.atex.plugins.customsolr.config.selectinputtemplates.help</help>
+                  <param name="multivalued">true</param>
+                  <param name="size">10</param>
+                </field>
+                <param name="hasAddButton">true</param>
+              </field>
+          </layout>
+        </layout>
+      </layout>
+    </layout>
+  </input-template>
+
+  </template-definition>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<template-definition version="1.0" xmlns="http://www.polopoly.com/polopoly/cm/app/xml">
+
+  <input-template name="com.atex.plugins.customsolr.BasicFieldSelect">
+    <policy>com.atex.plugins.customsolr.BasicFieldSelectPolicy</policy>
+    <editor>com.polopoly.cm.app.widget.OSelectPolicyWidget</editor>
+    <viewer>com.polopoly.cm.app.widget.OSelectPolicyWidget</viewer>
+  </input-template>
+
+  <input-template name="com.atex.plugins.customsolr.InputTemplateSelect">
+    <policy>com.atex.plugins.customsolr.InputTemplateSelectPolicy</policy>
+    <editor>com.atex.plugins.customsolr.widget.OCoreBaseITSelectPolicyWidget</editor>
+    <viewer>com.atex.plugins.customsolr.widget.OCoreBaseITSelectPolicyWidget</viewer>
+  </input-template>
+
+</template-definition>

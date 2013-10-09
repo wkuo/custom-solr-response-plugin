@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<web-fragment xmlns="http://java.sun.com/xml/ns/j2ee"
+ xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+ xmlns:webfragment="http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="3.0">
+
+    <display-name>Custom Solr Response</display-name>
+    <name>solr-cust-filter</name>
+
+    <servlet>
+      <servlet-name>custSolrServlet</servlet-name>
+      <servlet-class>com.atex.plugins.customsolr.servlet.SolrCustomServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+      <servlet-name>coreListServlet</servlet-name>
+      <servlet-class>com.atex.plugins.customsolr.servlet.SolrCoreListServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+      <servlet-name>coreListServlet</servlet-name>
+      <url-pattern>/customSolr/coreList/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+      <servlet-name>custSolrServlet</servlet-name>
+      <url-pattern>/customSolr/*</url-pattern>
+    </servlet-mapping>
+
+    <filter>
+      <filter-name>custSolrlogin</filter-name>
+      <filter-class>com.atex.plugins.customsolr.servlet.SolrLoginFilter</filter-class>
+      <init-param>
+        <param-name>QueryParameterDecoderClass</param-name>
+        <param-value>com.atex.integration.authentication.AESEncoderDecoder</param-value>
+      </init-param>
+      <init-param>
+        <param-name>DecoderKey</param-name>
+        <param-value>-65, -69, 36, 94, -62, 120, -70, 110, 36, -13, -97, 15, -70, 127, 56, 70</param-value>
+      </init-param>
+      <init-param>
+        <param-name>QueryParameterName</param-name>
+        <param-value>pSeriesAccessCode</param-value>
+      </init-param>
+    </filter>
+
+    <filter>
+      <filter-name>logout</filter-name>
+      <filter-class>com.atex.plugins.customsolr.servlet.SolrLogOutFilter</filter-class>
+    </filter>
+
+    <filter>
+      <filter-name>fieldListFilter</filter-name>
+      <filter-class>com.atex.plugins.customsolr.servlet.SolrFieldListFilter</filter-class>
+    </filter>
+
+    <filter>
+      <filter-name>solrQueryFilter</filter-name>
+      <filter-class>com.atex.plugins.customsolr.servlet.SolrQueryFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+      <filter-name>logout</filter-name>
+      <url-pattern>/customSolr/logout/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>custSolrlogin</filter-name>
+      <url-pattern>/customSolr/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>fieldListFilter</filter-name>
+      <url-pattern>/customSolr/fieldList/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>solrQueryFilter</filter-name>
+      <url-pattern>*/select</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>solrQueryFilter</filter-name>
+      <url-pattern>*/select/</url-pattern>
+    </filter-mapping>
+
+</web-fragment>
