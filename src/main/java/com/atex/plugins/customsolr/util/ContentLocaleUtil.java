@@ -17,6 +17,8 @@ public class ContentLocaleUtil {
 
     private PolicyCMServer cmServer;
     private static final Logger LOG = Logger.getLogger(ContentLocaleUtil.class.getName());
+    protected static final String POLOPOLY_CLIENT = "polopoly.Client";
+    protected static final String LABEL = "label";
 
     public ContentLocaleUtil(PolicyCMServer cmServer) {
         this.cmServer = cmServer;
@@ -24,11 +26,12 @@ public class ContentLocaleUtil {
 
     public String getITLabelKey(String itExtIdStr) {
         try {
-            ExternalContentId itExtId = new ExternalContentId(itExtIdStr);
+            ExternalContentId itExtId = getITExtId(itExtIdStr);
             Policy itPolicy = cmServer.getPolicy(itExtId);
-            String labelKey = itPolicy.getContent().getComponent("polopoly.Client", "label");
+            String labelKey = itPolicy.getContent().getComponent(POLOPOLY_CLIENT, LABEL);
             return labelKey;
         } catch (CMException e) {
+            LOG.log(Level.FINE, "Unable to get label for ", itExtIdStr);
             return "";
         }
     }
@@ -37,7 +40,7 @@ public class ContentLocaleUtil {
         String itName = "";
         Locale locale = null;
         if (!StringUtil.isEmpty(prefered)) {
-            locale = new Locale(prefered);
+            locale = getLocale(prefered);
         }
         String labelKey = getITLabelKey(itExtIdStr);
         itName = getLabelByKey(labelKey, locale);
@@ -48,17 +51,31 @@ public class ContentLocaleUtil {
     }
 
     public String getLabelByKey(String key, Locale prefered) {
-        ResourceBundleUtil rbUtil = new ResourceBundleUtil();
+        ResourceBundleUtil rbUtil = getResourceBundleUtil();
         ResourceBundle rb = null;
         if (prefered!=null) {
             rb = rbUtil.getResourceBundle(cmServer, prefered);
-            LOG.log(Level.INFO, "Prefered is null");
         }
         if (rb==null) {
             rb = rbUtil.getDefaultResourceBundle(cmServer);
-            LOG.log(Level.INFO, "RB is null before and after is " + rb);
         }
-        return LocaleUtil.format(key, rb);
+        return getLocaleFormat(key, rb);
     }
 
+    // For unit test
+    protected ExternalContentId getITExtId(String itExtIdStr) {
+        return new ExternalContentId(itExtIdStr);
+    }
+
+    protected Locale getLocale(String prefered) {
+        return new Locale(prefered);
+    }
+
+    protected ResourceBundleUtil getResourceBundleUtil() {
+        return new ResourceBundleUtil();
+    }
+
+    protected String getLocaleFormat(String key, ResourceBundle rb) {
+        return LocaleUtil.format(key, rb);
+    }
 }

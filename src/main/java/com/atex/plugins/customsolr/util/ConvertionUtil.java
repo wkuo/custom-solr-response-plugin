@@ -1,6 +1,6 @@
 package com.atex.plugins.customsolr.util;
 
-import com.polopoly.common.lang.StringUtil;
+import com.polopoly.util.StringUtil;
 
 public class ConvertionUtil {
     public static Integer strToInt(String text) {

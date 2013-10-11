@@ -20,9 +20,8 @@ component:corebasedup[0]/basicfsel:selected_9:tag_autocomplete_department.catego
 component:corebasedup[0]/basicfsel:selected_10:tag_autocomplete_department.categorydimension.tag.Organisation
 component:corebasedup[0]/basicfsel:selected_11:tag_autocomplete_department.categorydimension.tag.Person
 component:corebasedup[0]/basicfsel:selected_12:tag_autocomplete_department.categorydimension.tag.Tag
-component:corebasedup[0]/itssel:count:2
+component:corebasedup[0]/itssel:count:1
 component:corebasedup[0]/itssel:selected_0:example.StandardArticle
-component:corebasedup[0]/itssel:selected_1:example.Image
 component:corebasedup[1]/basicfsel:count:13
 component:corebasedup[1]/core:value:public
 component:corebasedup[1]/basicfsel:selected_0:contentId
@@ -38,8 +37,6 @@ component:corebasedup[1]/basicfsel:selected_9:tag_autocomplete_department.catego
 component:corebasedup[1]/basicfsel:selected_10:tag_autocomplete_department.categorydimension.tag.Organisation
 component:corebasedup[1]/basicfsel:selected_11:tag_autocomplete_department.categorydimension.tag.Person
 component:corebasedup[1]/basicfsel:selected_12:tag_autocomplete_department.categorydimension.tag.Tag
-component:corebasedup[1]/itssel:count:2
+component:corebasedup[1]/itssel:count:1
 component:corebasedup[1]/itssel:selected_0:example.StandardArticle
-component:corebasedup[1]/itssel:selected_1:example.Image
-
 

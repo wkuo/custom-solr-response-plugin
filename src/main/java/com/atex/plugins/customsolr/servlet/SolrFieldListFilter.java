@@ -8,31 +8,20 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jdom.Element;
 
-import com.atex.plugins.customsolr.BasicFieldSelectPolicy;
-import com.atex.plugins.customsolr.ConfigPolicy;
 import com.atex.plugins.customsolr.ResponseElement;
-import com.atex.plugins.customsolr.util.ConfigUtil;
 import com.atex.plugins.customsolr.util.JdomUtil;
 import com.atex.plugins.customsolr.util.MapParamUtil;
-import com.atex.plugins.customsolr.util.SolrUtil;
-import com.polopoly.application.servlet.ApplicationServletUtil;
 import com.polopoly.cm.client.CMException;
-import com.polopoly.cm.client.CmClient;
-import com.polopoly.cm.client.CmClientBase;
 
 public class SolrFieldListFilter
-    implements Filter 
+    extends FilterServiceImpl 
 {
     private static final Logger LOG = Logger.getLogger(SolrFieldListFilter.class.getName());
 
@@ -50,88 +39,55 @@ public class SolrFieldListFilter
     protected static final String CONTENTTYPE_XML = "application/xml";
     protected static final String LUKE_ADMIN = "/admin/luke";
 
-    private FilterConfig config;
-    private String solrServerUrl;
     private Boolean detail;
     private Boolean allField;
     private String selectedCore;
     private Map<String, Map> outputMap;
-    private SolrUtil solrUtil;
-    private ConfigUtil configUtil ;
 
     @Override
-    public void init(FilterConfig config) throws ServletException {
-        this.config = config;
-    }
-
     public void initCm() throws CMException {
-        CmClient cmClient = ((CmClient) ApplicationServletUtil
-                .getApplication(config.getServletContext())
-                .getApplicationComponent(CmClientBase.DEFAULT_COMPOUND_NAME));
-        solrUtil = new SolrUtil(cmClient);
-        configUtil =  new ConfigUtil(cmClient);
-        solrServerUrl = configUtil.getSolrServerUrl();
         outputMap = new HashMap<String, Map>();
-        this.detail = false;
-        this.allField = false;
+        detail = false;
+        allField = false;
     }
 
     @Override
-    public void destroy() {
-        solrUtil = null;
-        configUtil = null;
+    public void destroyCm() {
         outputMap = null;
     }
 
     @Override
-    public void doFilter(ServletRequest sReq, ServletResponse sResp, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) sReq;
-        HttpServletResponse resp = (HttpServletResponse) sResp;
+    public void doFilter(HttpServletRequest req, HttpServletResponse resp, FilterChain chain) throws IOException, ServletException {
         solrFieldListing(req, resp);
     }
 
     protected void solrFieldListing(HttpServletRequest req, HttpServletResponse resp) {
         ResponseElement root = new ResponseElement();
-        try {
-            initCm() ;
-            selectedCore = getSelectedCore(req);
-            MapParamUtil paramUtil = new MapParamUtil(
-                    req.getParameterNames(), req.getParameterMap());
-            detail = paramUtil.getBoolFromParamByKey(PARAM_DETAIL);
-            allField = paramUtil.getBoolFromParamByKey(PARAM_ALLFIELD);
+        selectedCore = solrUtil.getSelectedCore(req);
+        MapParamUtil paramUtil = new MapParamUtil(
+                req.getParameterNames(), req.getParameterMap());
+        detail = paramUtil.getBoolFromParamByKey(PARAM_DETAIL);
+        allField = paramUtil.getBoolFromParamByKey(PARAM_ALLFIELD);
 
-            if (selectedCore !=null) {
-                Element eleCore = new Element(selectedCore);
+        if (selectedCore !=null) {
+            Element eleCore = new Element(selectedCore);
+            root.addResult(eleCore);
+            String lukeUrl = solrServerUrl +"/" +selectedCore + LUKE_ADMIN;
+            eleCore.addContent(readLukeRespose(lukeUrl));
+        } else {
+            // if no core defined or core not found, then loop all the cores
+            List<String> cores = solrUtil.getSolrCores();
+            for (String core : cores) {
+                Element eleCore = new Element(core);
+                selectedCore = core;
                 root.addResult(eleCore);
-                String lukeUrl = solrServerUrl +"/" +selectedCore + LUKE_ADMIN;
+                String lukeUrl = solrServerUrl +"/" +core + LUKE_ADMIN;
                 eleCore.addContent(readLukeRespose(lukeUrl));
-            } else {
-                // if no core defined or core not found, then loop all the cores
-                List<String> cores = solrUtil.getSolrCores();
-                for (String core : cores) {
-                    Element eleCore = new Element(core);
-                    selectedCore = core;
-                    root.addResult(eleCore);
-                    String lukeUrl = solrServerUrl +"/" +core + LUKE_ADMIN;
-                    eleCore.addContent(readLukeRespose(lukeUrl));
-                }
             }
+        }
             // Response the caller with result
-        } catch (CMException e) {
-            LOG.log(Level.WARNING, "Error retrieving info from CmServer." , e);
-        }
-        root.write(resp);
-    }
 
-    protected String getSelectedCore(HttpServletRequest req) {
-        List<String> cores = solrUtil.getSolrCores();
-        StringBuffer url = req.getRequestURL();
-        for (String core: cores) {
-            if (url.indexOf(core)!= -1) {
-                return core;
-            }
-        }
-        return null;
+        root.write(resp);
     }
 
     protected Element readLukeRespose(String lukeUrl) {

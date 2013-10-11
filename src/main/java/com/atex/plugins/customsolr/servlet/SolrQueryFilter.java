@@ -6,35 +6,25 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.servlet.Filter;
 import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jdom.Element;
 
-import com.atex.plugins.customsolr.ConfigPolicy;
 import com.atex.plugins.customsolr.QueryDocEntry;
-import com.atex.plugins.customsolr.util.ConfigUtil;
 import com.atex.plugins.customsolr.util.ContentUtil;
 import com.atex.plugins.customsolr.util.ConvertionUtil;
 import com.atex.plugins.customsolr.util.JdomUtil;
 import com.atex.plugins.customsolr.util.MapParamUtil;
 import com.atex.plugins.customsolr.util.ResponseUtil;
-import com.atex.plugins.customsolr.util.SolrUtil;
 import com.atex.plugins.customsolr.util.UrlUtil;
-import com.polopoly.application.servlet.ApplicationServletUtil;
 import com.polopoly.cm.client.CMException;
-import com.polopoly.cm.client.CmClient;
-import com.polopoly.cm.client.CmClientBase;
 import com.polopoly.util.StringUtil;
 
 public class SolrQueryFilter 
-implements Filter
+    extends FilterServiceImpl
 {
 
     protected static final String CONTENT_TYPE = "application/xml";
@@ -59,41 +49,25 @@ implements Filter
 
     private MapParamUtil paramUtil;
     private UrlUtil urlUtil;
-    private CmClient cmClient;
-    private FilterConfig config;
-    private ConfigUtil configUtil ;
-    private SolrUtil solrUtil;
     private List<String> allowedIT;
 
     @Override
-    public void init(FilterConfig config) throws ServletException {
-        this.config = config;
-    }
-
-    protected void initCm() throws CMException {
-      cmClient = ((CmClient) ApplicationServletUtil
-      .getApplication(config.getServletContext())
-      .getApplicationComponent(CmClientBase.DEFAULT_COMPOUND_NAME));
+    public void initCm() throws CMException {
       urlUtil = new UrlUtil(cmClient);
-      solrUtil = new SolrUtil(cmClient);
-      configUtil =  new ConfigUtil(cmClient);
     }
 
     @Override
-    public void destroy() {
-        config = null;
+    public void destroyCm() {
         paramUtil = null;
-        cmClient = null;
     }
 
     @Override
-    public void doFilter(ServletRequest sReq, ServletResponse sResp, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) sReq;
-        HttpServletResponse resp =  (HttpServletResponse) sResp;
+    public void doFilter(HttpServletRequest req, HttpServletResponse resp, FilterChain chain)
+            throws IOException, ServletException {
         try {
             initCm();
             initParamUtil(req);
-            allowedIT = configUtil.getSelectedInputTemplates(getSelectedCore(req));
+            allowedIT = configUtil.getSelectedInputTemplates(solrUtil.getSelectedCore(req));
             solrQueryProcessing(req, resp);
         } catch (CMException e) {
             LOG.log(Level.WARNING, "Error retrieving info from CmServer." , e);
@@ -184,15 +158,4 @@ implements Filter
         return link;
     }
 
-    protected String getSelectedCore(HttpServletRequest req) {
-        List<String> cores = solrUtil.getSolrCores();
-        StringBuffer url = req.getRequestURL();
-        for (String core: cores) {
-            if (url.indexOf(core)!= -1) {
-                return core;
-            }
-        }
-        return null;
-    }
-    
 }

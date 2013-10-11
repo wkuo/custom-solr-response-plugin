@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.atex.plugins.customsolr.util.ContentLocaleUtil;
 import com.atex.plugins.customsolr.util.InputTemplateUtil;
 import com.polopoly.cm.client.CMException;
 import com.polopoly.util.StringUtil;
@@ -18,11 +17,11 @@ public class InputTemplateSelectPolicy
 
     protected void loadCustomOptions() {
         String core = "";
-        ContentLocaleUtil cLocaleUtil = new ContentLocaleUtil(getCMServer());
         try {
             core = getCoreName();
             if (!StringUtil.isEmpty(core)) {
-                List<String> solrITs = InputTemplateUtil.getAllInputTemplates(getSolrServerUrl(), core);
+                InputTemplateUtil itUtil =  new InputTemplateUtil(getSolrServerUrl());
+                List<String> solrITs = itUtil.getAllInputTemplates(core);
                 for (String itExtIdStr:solrITs) {
                     if (!isExistInData(itExtIdStr)) {
                         addToData(itExtIdStr);

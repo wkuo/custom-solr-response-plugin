@@ -57,6 +57,11 @@
     </filter>
 
     <filter>
+      <filter-name>itListFilter</filter-name>
+      <filter-class>com.atex.plugins.customsolr.servlet.SolrITListFilter</filter-class>
+    </filter>
+
+    <filter>
       <filter-name>solrQueryFilter</filter-name>
       <filter-class>com.atex.plugins.customsolr.servlet.SolrQueryFilter</filter-class>
     </filter>
@@ -74,6 +79,11 @@
     <filter-mapping>
       <filter-name>fieldListFilter</filter-name>
       <url-pattern>/customSolr/fieldList/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+      <filter-name>itListFilter</filter-name>
+      <url-pattern>/customSolr/itList/*</url-pattern>
     </filter-mapping>
 
     <filter-mapping>

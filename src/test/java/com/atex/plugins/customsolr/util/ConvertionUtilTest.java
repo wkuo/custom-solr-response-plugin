@@ -2,7 +2,6 @@ package com.atex.plugins.customsolr.util;
 
 import static org.junit.Assert.*;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class ConvertionUtilTest {

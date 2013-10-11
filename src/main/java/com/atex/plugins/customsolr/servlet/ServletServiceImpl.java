@@ -4,13 +4,15 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
-import com.polopoly.application.servlet.ApplicationServletUtil;
+import com.atex.plugins.customsolr.util.CmUtil;
+import com.atex.plugins.customsolr.util.ConfigUtil;
+import com.atex.plugins.customsolr.util.SolrUtil;
 import com.polopoly.cm.client.CMException;
 import com.polopoly.cm.client.CmClient;
-import com.polopoly.cm.client.CmClientBase;
 
 public abstract class ServletServiceImpl 
     extends HttpServlet
+    implements SolrCmService
 {
     /**
      * 
@@ -18,10 +20,16 @@ public abstract class ServletServiceImpl
     private static final long serialVersionUID = 1L;
     private ServletConfig config;
     protected CmClient cmClient;
+    protected ConfigUtil configUtil;
+    protected SolrUtil solrUtil;
+    protected String solrServerUrl;
 
-    public abstract void initCm() throws CMException;
+    public void initCm() throws CMException {
+    }
 
-    /* In progress of design and refactor */
+    public void destroyCm(){
+    }
+
     @Override
     public void init(ServletConfig config) throws ServletException {
         this.config = config;
@@ -34,10 +42,12 @@ public abstract class ServletServiceImpl
         }
     }
 
-    private void initCommonCm() {
-        cmClient = ((CmClient) ApplicationServletUtil
-                .getApplication(config.getServletContext())
-                .getApplicationComponent(CmClientBase.DEFAULT_COMPOUND_NAME));
+    public void initCommonCm() {
+        cmClient = CmUtil.getCmClientByContext(
+                getWsConfig().getServletContext());
+        configUtil = getConfigUtil() ;
+        solrUtil = getSolrUtil();
+        solrServerUrl = configUtil.getSolrServerUrl();
     }
     
     protected ServletConfig getWsConfig() {
@@ -46,5 +56,13 @@ public abstract class ServletServiceImpl
 
     protected CmClient getCmClient() {
         return cmClient;
+    }
+
+    protected ConfigUtil getConfigUtil() {
+        return new ConfigUtil(cmClient);
+    }
+
+    protected SolrUtil getSolrUtil() {
+        return new SolrUtil(cmClient);
     }
 }
