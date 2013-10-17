@@ -79,11 +79,9 @@ public class SolrQueryFilter
     }
 
     protected void loadFilterQueryParam() {
-        LOG.log(Level.INFO, "fq is " + paramUtil.getStringFromParamByKey("fq"));
         if (StringUtil.isEmpty(paramUtil.getStringFromParamByKey("fq"))) {
             paramUtil.applyITFilter(allowedIT);
         }
-        LOG.log(Level.INFO, "allowIt  = " + allowedIT);
     }
 
     protected void solrQueryProcessing(HttpServletRequest req, HttpServletResponse resp) {

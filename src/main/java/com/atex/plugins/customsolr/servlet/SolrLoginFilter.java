@@ -34,6 +34,7 @@ extends AutoLoginFilter
     public static final String QUERY_PARAMETER_NAME = "QueryParameterName";
 
     private static final Logger LOG = Logger.getLogger(SolrLoginFilter.class.getName());
+    private String accessCodeName;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -48,6 +49,7 @@ extends AutoLoginFilter
                 .getApplicationComponent(CmClientBase.DEFAULT_COMPOUND_NAME));
         ConfigUtil configUtil = new ConfigUtil(cmClient);
         autoLogin = configUtil.isAutoLogin();
+        accessCodeName = filterConfig.getInitParameter(QUERY_PARAMETER_NAME);
     }
 
     @Override
@@ -55,20 +57,25 @@ extends AutoLoginFilter
             throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse resp = (HttpServletResponse) response;
-        String accessCodeName = filterConfig.getInitParameter(QUERY_PARAMETER_NAME);
-        // if the access code name in web fragment xml not defined then no authentication needed
-        if (StringUtil.isEmpty(accessCodeName)) {
-            LOG.log(Level.WARNING, "accessCodeName not found in web-fragment.xml");
-            chain.doFilter(req, resp);
-        }
         if (autoLogin) {
-            String accessCode = req.getParameter(accessCodeName);
-            if (accessCode!=null || isAlreadyLoggedInSession(req, resp)) {
-                super.doFilter(req, resp, chain);
+            boolean loggedIn = isAlreadyLoggedInSession(req, resp);
+            if (loggedIn) {
+                chain.doFilter(req, resp);
             } else {
-                ResponseElement root = new ResponseElement();
-                root.setStatusMsg(HttpStatus.SC_UNAUTHORIZED, "Authentication required: " + accessCodeName + " missing in parameter.");
-                ResponseUtil.write(resp, root.getResponse());
+                // if the access code name in web fragment xml not defined then no authentication needed
+                if (!StringUtil.isEmpty(accessCodeName)) {
+                    String accessCode = req.getParameter(accessCodeName);
+                    if (accessCode!=null) {
+                        super.doFilter(req, resp, chain);
+                    } else {
+                        ResponseElement root = new ResponseElement();
+                        root.setStatusMsg(HttpStatus.SC_UNAUTHORIZED, "Authentication required: " + accessCodeName + " missing in parameter.");
+                        ResponseUtil.write(resp, root.getResponse());
+                    }
+                } else {
+                    LOG.log(Level.WARNING, "accessCodeName not found in web-fragment.xml");
+                    chain.doFilter(req, resp);
+                }
             }
         } else {
             chain.doFilter(req, resp);
